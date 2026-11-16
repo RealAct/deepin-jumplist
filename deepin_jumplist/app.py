@@ -14,6 +14,7 @@ import sys
 import time
 
 from . import APP_ID, APP_NAME, VERSION
+from .i18n import _
 
 
 def _socket_name() -> str:
@@ -103,12 +104,12 @@ class JumpListApp:
         from .theme import RoundedMenu
 
         self.menu = RoundedMenu(theme_mode=self.config["theme"])
-        self.menu.addAction("Show jump list", lambda: self.popup.show_at())
+        self.menu.addAction(_("Show jump list"), lambda: self.popup.show_at())
         self.menu.addSeparator()
-        self.menu.addAction("Options…", self.show_options)
-        self.menu.addAction("About", self.show_about)
+        self.menu.addAction(_("Options…"), self.show_options)
+        self.menu.addAction(_("About"), self.show_about)
         self.menu.addSeparator()
-        self.menu.addAction("Exit", self.quit)
+        self.menu.addAction(_("Exit"), self.quit)
         # By default we pop the rounded menu up ourselves on right click, so
         # the panel cannot replace it with its own square menu.
         self.tray.setContextMenu(self.menu if self.config["native_tray_menu"] else None)

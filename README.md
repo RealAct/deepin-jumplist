@@ -33,6 +33,13 @@ default application.
 - Keyboard: arrow keys to move, Enter to open, Esc to close, Menu key for the
   context menu.
 - The dock's own right-click menu gets *Options* and *About* entries too.
+- **About window** with two tabs, *About* and *Credits*.
+- **English and Spanish.** The app shows in Spanish when the system language
+  is Spanish (any `es_*` locale, taken from `LANGUAGE`, `LC_ALL`,
+  `LC_MESSAGES` or `LANG`), and in English otherwise. Translations live in
+  `deepin_jumplist/i18n.py`.
+
+![About and Credits tabs, jump list and Options in English and Spanish](docs/screenshot-about-es.png)
 
 ## Install
 
@@ -62,7 +69,7 @@ removes it again.
 
 ```sh
 ./packaging/build-deb.sh
-sudo apt install ./dist/deepin-jumplist_1.0.0_all.deb
+sudo apt install ./dist/deepin-jumplist_1.1.0_all.deb
 ```
 
 ### Put it on the dock

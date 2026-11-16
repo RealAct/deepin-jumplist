@@ -2,7 +2,9 @@
 Type=Application
 Name=Deepin Jumplist
 GenericName=Jump List
+GenericName[es]=Lista de accesos
 Comment=Quick access to your recent and pinned files
+Comment[es]=Acceso rápido a tus archivos recientes y anclados
 Exec=deepin-jumplist
 Icon=deepin-jumplist
 Terminal=false
@@ -10,12 +12,15 @@ StartupNotify=false
 StartupWMClass=deepin-jumplist
 Categories=Utility;Qt;
 Keywords=recent;files;jumplist;pinned;documents;
+Keywords[es]=recientes;archivos;lista;anclados;documentos;
 Actions=Options;About;
 
 [Desktop Action Options]
 Name=Options
+Name[es]=Opciones
 Exec=deepin-jumplist --options
 
 [Desktop Action About]
 Name=About
+Name[es]=Acerca de
 Exec=deepin-jumplist --about

@@ -180,6 +180,7 @@ def dialog_stylesheet(c: Colors) -> str:
     QLabel#dimLabel {{ color: {c.css(c.dim)}; }}
     QLabel#titleLabel {{ font-size: 11pt; font-weight: 600; }}
     QLabel#bigTitle {{ font-size: 16pt; font-weight: 600; }}
+    QLabel#creditName {{ font-size: 12pt; font-weight: 600; }}
     QPushButton {{
         background-color: {c.css(c.field)};
         border: 1px solid {c.css(c.border)};

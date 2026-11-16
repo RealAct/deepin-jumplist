@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
 from . import APP_NAME
 from .actions import open_path, reveal_path
 from .config import Config
+from .i18n import _
 from .icons import app_icon, file_icon, gear_pixmap, pin_pixmap, plus_pixmap
 from .recent import RecentItem, load_recent
 from .theme import (
@@ -96,7 +97,7 @@ class ItemRow(QWidget):
         self.name_label.setAttribute(Qt.WA_TransparentForMouseEvents)
         lay.addWidget(self.name_label, 1)
 
-        self.pin_button = IconButton(colors, "Unpin from this list" if pinned else "Pin to this list", self)
+        self.pin_button = IconButton(colors, _("Unpin from this list") if pinned else _("Pin to this list"), self)
         dpr = self.devicePixelRatioF()
         self.pin_button.setIcon(QIcon(pin_pixmap(colors.fg if pinned else colors.dim, pinned, 16, dpr)))
         self.pin_button.clicked.connect(lambda: self.pin_toggled.emit(self.path))
@@ -224,10 +225,10 @@ class JumpListPopup(QWidget):
         footer.addWidget(self.footer_icon)
         self.footer_label = QLabel(APP_NAME, self)
         footer.addWidget(self.footer_label, 1)
-        self.add_button = IconButton(self.colors, "Pin a file…", self)
+        self.add_button = IconButton(self.colors, _("Pin a file…"), self)
         self.add_button.clicked.connect(self._pin_file_dialog)
         footer.addWidget(self.add_button)
-        self.options_button = IconButton(self.colors, "Options", self)
+        self.options_button = IconButton(self.colors, _("Options"), self)
         self.options_button.clicked.connect(self._open_options)
         footer.addWidget(self.options_button)
         outer.addLayout(footer)
@@ -284,7 +285,7 @@ class JumpListPopup(QWidget):
 
         pinned = [p for p in self.config.pinned if os.path.exists(p)] if self.config["show_pinned"] else []
         if pinned:
-            lay.addWidget(self._section_label("Pinned"))
+            lay.addWidget(self._section_label(_("Pinned")))
             for path in pinned:
                 lay.addWidget(self._make_row(path, True))
 
@@ -294,12 +295,12 @@ class JumpListPopup(QWidget):
             hidden=self.config["hidden"],
             include_folders=self.config["include_folders"],
         )
-        lay.addWidget(self._section_label("Recent"))
+        lay.addWidget(self._section_label(_("Recent")))
         if self.recent_items:
             for item in self.recent_items:
                 lay.addWidget(self._make_row(item.path, False))
         else:
-            empty = QLabel("Files you open will show up here.")
+            empty = QLabel(_("Files you open will show up here."))
             empty.setStyleSheet(
                 f"color: {self.colors.css(self.colors.dim)}; background: transparent; padding: 8px 10px;"
             )
@@ -408,21 +409,21 @@ class JumpListPopup(QWidget):
     def _context_menu(self, path: str, pos: QPoint) -> None:
         theme = self.config["theme"]
         menu = RoundedMenu(parent=self, theme_mode=theme)
-        menu.addAction("Open", lambda: self._open(path))
-        menu.addAction("Open file location", lambda: (self.hide(), reveal_path(path)))
-        menu.addAction("Copy path", lambda: QApplication.clipboard().setText(path))
+        menu.addAction(_("Open"), lambda: self._open(path))
+        menu.addAction(_("Open file location"), lambda: (self.hide(), reveal_path(path)))
+        menu.addAction(_("Copy path"), lambda: QApplication.clipboard().setText(path))
         menu.addSeparator()
         if self.config.is_pinned(path):
-            menu.addAction("Unpin from this list", lambda: self._toggle_pin(path))
+            menu.addAction(_("Unpin from this list"), lambda: self._toggle_pin(path))
             pins = self.config.pinned
             i = pins.index(path)
-            up = menu.addAction("Move up", lambda: (self.config.move_pin(path, -1), self._refresh_in_place()))
+            up = menu.addAction(_("Move up"), lambda: (self.config.move_pin(path, -1), self._refresh_in_place()))
             up.setEnabled(i > 0)
-            down = menu.addAction("Move down", lambda: (self.config.move_pin(path, 1), self._refresh_in_place()))
+            down = menu.addAction(_("Move down"), lambda: (self.config.move_pin(path, 1), self._refresh_in_place()))
             down.setEnabled(i < len(pins) - 1)
         else:
-            menu.addAction("Pin to this list", lambda: self._toggle_pin(path))
-            menu.addAction("Remove from this list", lambda: self._remove_recent(path))
+            menu.addAction(_("Pin to this list"), lambda: self._toggle_pin(path))
+            menu.addAction(_("Remove from this list"), lambda: self._remove_recent(path))
         menu.exec_(pos)
 
     def _remove_recent(self, path: str) -> None:
@@ -433,7 +434,7 @@ class JumpListPopup(QWidget):
 
     def _pin_file_dialog(self) -> None:
         self.hide()
-        paths, _ = QFileDialog.getOpenFileNames(None, "Pin files to the jump list", os.path.expanduser("~"))
+        paths, _ = QFileDialog.getOpenFileNames(None, _("Pin files to the jump list"), os.path.expanduser("~"))
         for path in reversed(paths):
             self.config.pin(path)
 

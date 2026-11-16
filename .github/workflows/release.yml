@@ -1,0 +1,38 @@
+name: Build .deb release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: |
+          python3 -m pip install --quiet pytest
+          python3 -m pytest -q tests/test_recent.py tests/test_config.py
+
+      - name: Build .deb
+        run: ./packaging/build-deb.sh
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="$(sed -n 's/^VERSION = "\(.*\)"/\1/p' deepin_jumplist/__init__.py)"
+          TAG="v$VERSION"
+          DEB="dist/deepin-jumplist_${VERSION}_all.deb"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$DEB" --clobber
+          else
+            gh release create "$TAG" "$DEB" --target "$GITHUB_SHA" \
+              --title "Deepin Jumplist $VERSION" \
+              --notes "Install with \`sudo apt install ./deepin-jumplist_${VERSION}_all.deb\`, then open the Launcher, right-click Deepin Jumplist and choose Send to dock. Needs python3-pyqt5 (pulled in automatically by apt)."
+          fi

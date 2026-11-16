@@ -57,3 +57,18 @@ def test_every_ui_string_has_a_spanish_translation():
             if text not in i18n.ES:
                 missing.append(f"{src.name}: {text!r}")
     assert not missing, missing
+
+
+def test_translation_function_is_never_shadowed():
+    """Assigning to "_" anywhere in a module that uses _() for translations
+    makes "_" a local name and crashes at runtime (the v1.1.0 "Pin a file" bug)."""
+    import ast
+
+    pkg = Path(i18n.__file__).parent
+    offenders = []
+    for src in pkg.glob("*.py"):
+        tree = ast.parse(src.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == "_" and isinstance(node.ctx, ast.Store):
+                offenders.append(f"{src.name}:{node.lineno}")
+    assert not offenders, offenders

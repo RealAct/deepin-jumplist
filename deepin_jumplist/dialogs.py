@@ -25,7 +25,7 @@ from . import APP_NAME, VERSION
 from .config import MAX_ITEMS, MIN_ITEMS, Config, set_autostart
 from .icons import app_icon
 from .i18n import _
-from .recent import load_recent
+from .recent import load_recent, load_recent_folders
 from .theme import (
     RADIUS,
     apply_mask_if_needed,
@@ -150,7 +150,7 @@ class OptionsDialog(RoundedDialog):
         self.show_pinned.setChecked(config["show_pinned"])
         form.addRow("", self.show_pinned)
 
-        self.include_folders = QCheckBox(_("Include recently opened folders"))
+        self.include_folders = QCheckBox(_("Show recent folders"))
         self.include_folders.setChecked(config["include_folders"])
         form.addRow("", self.include_folders)
 
@@ -199,7 +199,8 @@ class OptionsDialog(RoundedDialog):
         self.body.addLayout(buttons)
 
     def _clear_recent(self) -> None:
-        items = load_recent(10_000, hidden=self.config["hidden"], include_folders=True)
+        hidden = self.config["hidden"]
+        items = load_recent(10_000, hidden=hidden) + load_recent_folders(10_000, hidden=hidden)
         self.config.clear_recent(items)
         self.on_changed()
 

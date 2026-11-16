@@ -108,7 +108,7 @@ def gear_pixmap(color: QColor, size: int = 16, dpr: float = 1.0) -> QPixmap:
     p.translate(8, 8)
     p.setPen(Qt.NoPen)
     p.setBrush(color)
-    for _ in range(8):
+    for _tooth in range(8):
         p.drawRoundedRect(QRectF(-1.4, -7.2, 2.8, 3.4), 0.8, 0.8)
         p.rotate(45)
     outer = QPainterPath()

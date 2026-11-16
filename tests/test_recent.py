@@ -63,3 +63,40 @@ def test_bad_input():
     assert parse_timestamp(None) == 0.0
     assert uri_to_path("file://otherhost/x") is None
     assert uri_to_path("file:///a%20b") == "/a b"
+
+
+def test_recent_folders_from_files_and_folder_entries(tmp_path):
+    from deepin_jumplist.recent import load_recent_folders
+
+    xbel = make(tmp_path)
+    sub = tmp_path / "Photos"
+    sub.mkdir()
+    (sub / "beach.png").write_text("x")
+    extra = tmp_path / "extra.xbel"
+    extra.write_text(
+        open(xbel).read().replace(
+            "</xbel>",
+            f'<bookmark href="file://{sub}/beach.png" added="2024-06-01T10:00:00Z"/></xbel>',
+        )
+    )
+    folders = load_recent_folders(10, xbel_path=str(extra))
+    # Newest first; a folder appears once even if several files in it were used.
+    assert [f.path for f in folders] == [str(sub), str(tmp_path), str(tmp_path / "folder")]
+    assert all(f.mime_type == "inode/directory" for f in folders)
+    assert len(load_recent_folders(1, xbel_path=str(extra))) == 1
+
+
+def test_recent_folders_respect_pins_and_hidden(tmp_path):
+    from deepin_jumplist.recent import load_recent_folders
+
+    xbel = make(tmp_path)
+    folders = load_recent_folders(10, exclude=[str(tmp_path)], xbel_path=xbel)
+    assert [f.path for f in folders] == [str(tmp_path / "folder")]
+    newest = parse_timestamp("2024-03-02T10:00:00Z")
+    folders = load_recent_folders(10, hidden={str(tmp_path): newest}, xbel_path=xbel)
+    assert str(tmp_path) not in [f.path for f in folders]
+
+
+def test_files_list_never_contains_folders(tmp_path):
+    xbel = make(tmp_path)
+    assert all(os.path.isfile(i.path) for i in load_recent(10, xbel_path=xbel))

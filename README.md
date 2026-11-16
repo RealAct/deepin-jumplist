@@ -15,6 +15,9 @@ default application.
 - **Recent items** read from the freedesktop `recently-used.xbel` list, which
   the Deepin file manager, Deepin apps, GTK apps, LibreOffice and most Qt apps
   write to. Missing files are skipped automatically.
+- **Recent folders** (optional, turn on in Options): folders you used
+  recently, worked out from the folders that hold your recent files, since
+  most apps only record files.
 - **Pinned items** at the top of the list. Hover a row and click the pin, use
   the right-click menu, or press **+** in the footer to pin any file.
   Pinned items can be reordered from the right-click menu.
@@ -25,7 +28,7 @@ default application.
 - **Tray icon**: left click toggles the jump list, right click opens a rounded
   menu with *Show jump list*, *Options…*, *About* and *Exit*.
 - **Options window**: number of recent items (1 to 30), show or hide pinned
-  items, include recent folders, light/dark/system appearance, start at login,
+  items, show recent folders, light/dark/system appearance, start at login,
   and *Clear recent*.
 - **Rounded corners everywhere**: the jump list, the tray menu, the right-click
   menu, and the Options and About windows. When no compositor is running the
@@ -69,7 +72,7 @@ removes it again.
 
 ```sh
 ./packaging/build-deb.sh
-sudo apt install ./dist/deepin-jumplist_1.1.0_all.deb
+sudo apt install ./dist/deepin-jumplist_1.1.1_all.deb
 ```
 
 ### Put it on the dock

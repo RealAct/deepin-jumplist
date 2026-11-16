@@ -46,7 +46,7 @@ def parse_timestamp(value: Optional[str]) -> float:
         v = v[:-1] + "+00:00"
     # Python < 3.11 cannot parse more than 6 fractional digits.
     if "." in v:
-        head, _, rest = v.partition(".")
+        head, _dot, rest = v.partition(".")
         frac = ""
         i = 0
         while i < len(rest) and rest[i].isdigit():
@@ -122,4 +122,41 @@ def load_recent(
             continue
         if os.path.isfile(item.path) or (include_folders and os.path.isdir(item.path)):
             result.append(item)
+    return result
+
+
+def load_recent_folders(
+    limit: int,
+    exclude: Iterable[str] = (),
+    hidden: Optional[dict] = None,
+    xbel_path: Optional[str] = None,
+) -> List[RecentItem]:
+    """Return up to ``limit`` recently used folders, newest first.
+
+    Most apps (and the Deepin file manager) only record *files* in
+    recently-used.xbel, so a folder counts as recent when it was recorded
+    itself or when it contains a recently used file, like the "Frequent
+    folders" of Windows. Each folder gets the time of its newest use.
+    """
+    exclude = set(exclude)
+    hidden = hidden or {}
+    seen = set()
+    result: List[RecentItem] = []
+    for item in parse_xbel(xbel_path or default_xbel_path()):
+        if len(result) >= limit:
+            break
+        if os.path.isdir(item.path):
+            folder = item.path.rstrip("/") or "/"
+        elif os.path.isfile(item.path):
+            folder = os.path.dirname(item.path)
+        else:
+            continue
+        if folder in seen:
+            continue
+        seen.add(folder)  # items are newest first, so the first hit is the latest use
+        if folder in exclude:
+            continue
+        if folder in hidden and item.timestamp <= float(hidden[folder]):
+            continue
+        result.append(RecentItem(folder, item.timestamp, "inode/directory"))
     return result

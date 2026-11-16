@@ -26,7 +26,7 @@ from .actions import open_path, reveal_path
 from .config import Config
 from .i18n import _
 from .icons import app_icon, file_icon, gear_pixmap, pin_pixmap, plus_pixmap
-from .recent import RecentItem, load_recent
+from .recent import RecentItem, load_recent, load_recent_folders
 from .theme import (
     ITEM_RADIUS,
     RADIUS,
@@ -193,6 +193,7 @@ class JumpListPopup(QWidget):
         self.show_options = show_options
         self.last_hidden = 0.0
         self.recent_items: List[RecentItem] = []
+        self.folder_items: List[RecentItem] = []
         self.rows: List[ItemRow] = []
         self.colors = current_colors(config["theme"])
         self._anchor = QPoint()
@@ -293,7 +294,6 @@ class JumpListPopup(QWidget):
             self.config["max_items"],
             exclude=self.config.pinned,
             hidden=self.config["hidden"],
-            include_folders=self.config["include_folders"],
         )
         lay.addWidget(self._section_label(_("Recent")))
         if self.recent_items:
@@ -305,6 +305,18 @@ class JumpListPopup(QWidget):
                 f"color: {self.colors.css(self.colors.dim)}; background: transparent; padding: 8px 10px;"
             )
             lay.addWidget(empty)
+
+        self.folder_items: List[RecentItem] = []
+        if self.config["include_folders"]:
+            self.folder_items = load_recent_folders(
+                self.config["max_items"],
+                exclude=self.config.pinned,
+                hidden=self.config["hidden"],
+            )
+            if self.folder_items:
+                lay.addWidget(self._section_label(_("Recent folders")))
+                for item in self.folder_items:
+                    lay.addWidget(self._make_row(item.path, False))
         lay.addStretch(1)
 
         old = self.scroll.takeWidget()
@@ -427,14 +439,18 @@ class JumpListPopup(QWidget):
         menu.exec_(pos)
 
     def _remove_recent(self, path: str) -> None:
-        for item in self.recent_items:
+        for item in self.recent_items + self.folder_items:
             if item.path == path:
                 self.config.hide_recent(path, item.timestamp)
         self._refresh_in_place()
 
     def _pin_file_dialog(self) -> None:
         self.hide()
-        paths, _ = QFileDialog.getOpenFileNames(None, _("Pin files to the jump list"), os.path.expanduser("~"))
+        # Don't unpack into "_": that would shadow the translation function
+        # in this method and crash with UnboundLocalError (v1.1.0 bug).
+        paths, _selected_filter = QFileDialog.getOpenFileNames(
+            None, _("Pin files to the jump list"), os.path.expanduser("~")
+        )
         for path in reversed(paths):
             self.config.pin(path)
 

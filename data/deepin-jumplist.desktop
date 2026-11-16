@@ -1,0 +1,21 @@
+[Desktop Entry]
+Type=Application
+Name=Deepin Jumplist
+GenericName=Jump List
+Comment=Quick access to your recent and pinned files
+Exec=deepin-jumplist
+Icon=deepin-jumplist
+Terminal=false
+StartupNotify=false
+StartupWMClass=deepin-jumplist
+Categories=Utility;Qt;
+Keywords=recent;files;jumplist;pinned;documents;
+Actions=Options;About;
+
+[Desktop Action Options]
+Name=Options
+Exec=deepin-jumplist --options
+
+[Desktop Action About]
+Name=About
+Exec=deepin-jumplist --about

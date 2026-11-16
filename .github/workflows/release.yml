@@ -16,8 +16,8 @@ jobs:
 
       - name: Run unit tests
         run: |
-          python3 -m pip install --quiet pytest
-          python3 -m pytest -q tests
+          python3 -m pip install --quiet pytest PyQt5
+          QT_QPA_PLATFORM=offscreen python3 -m pytest -q tests
 
       - name: Build .deb
         run: ./packaging/build-deb.sh
